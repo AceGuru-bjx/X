@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Unknown 守护</string>
+
+    <string name="channel_guard_name">守护状态</string>
+    <string name="channel_guard_desc">常驻前台守护服务的状态通知</string>
+    <string name="channel_alert_name">威胁告警</string>
+    <string name="channel_alert_desc">风险应用安装与拦截事件的高优先级告警</string>
+
+    <string name="guard_notification_running">多层权限守卫运行中</string>
+    <string name="alert_title">【%1$s】%2$s</string>
+    <string name="alert_body">已执行：%1$s · 评分 %2$d</string>
+</resources>

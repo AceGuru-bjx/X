@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Unknown Guard</string>
+
+    <string name="channel_guard_name">Guard status</string>
+    <string name="channel_guard_desc">Persistent status of the foreground guard service</string>
+    <string name="channel_alert_name">Threat alerts</string>
+    <string name="channel_alert_desc">High-priority alerts for risk installs and interceptions</string>
+
+    <string name="guard_notification_running">Multi-tier guard running</string>
+    <string name="alert_title">[%1$s] %2$s</string>
+    <string name="alert_body">Action taken: %1$s · score %2$d</string>
+</resources>
