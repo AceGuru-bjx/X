@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unknown_accessibility_label">Unknown 守护</string>
+    <string name="unknown_accessibility_description">用于实时监控前台应用、识别安装确认弹窗并在风险应用安装时自动取消；同时识别紧急触发手势（连按音量键）。不收集任何内容。</string>
+</resources>

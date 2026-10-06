@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="unknown_device_admin_label">Unknown 守护</string>
+    <string name="unknown_device_admin_description">用于系统级安装阻断与隐藏风险应用。</string>
+</resources>
