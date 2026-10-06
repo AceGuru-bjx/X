@@ -39,15 +39,9 @@ jobs:
           chmod +x ktlint
           ./ktlint --version
       - name: Run ktlint check
-        run: |
-          ./ktlint
-            'core/**/*.kt' \
-            'domain/**/*.kt' \
-            'service/**/*.kt' \
-            'data/**/*.kt' \
-            'feature/**/*.kt' \
-            'app/src/**/*.kt' \
-            'build-logic/**/*.kts'
+        run: >
+          ./ktlint 'core/**/*.kt' 'domain/**/*.kt' 'service/**/*.kt'
+          'data/**/*.kt' 'feature/**/*.kt' 'app/src/**/*.kt' 'build-logic/**/*.kts'
 
   build:
     name: gradle build (assemble)
