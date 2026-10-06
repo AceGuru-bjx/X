@@ -1,6 +1,6 @@
 plugins {
     id("unknown-android-library")
-    alias(libs.plugins.kotlin.android)
+    // Kotlin support is built into AGP 9 — do NOT apply kotlin.android here.
 }
 
 android {
