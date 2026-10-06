@@ -1,0 +1,122 @@
+name: android-ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: android-ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+jobs:
+  wrapper-validation:
+    name: gradle wrapper validation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+
+  ktlint:
+    name: ktlint (code style)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Download ktlint
+        run: |
+          curl -sSL -o ktlint "https://github.com/pinterest/ktlint/releases/download/1.8.0/ktlint"
+          chmod +x ktlint
+          ./ktlint --version
+      - name: Run ktlint check
+        run: |
+          ./ktlint
+            'core/**/*.kt' \
+            'domain/**/*.kt' \
+            'service/**/*.kt' \
+            'data/**/*.kt' \
+            'feature/**/*.kt' \
+            'app/src/**/*.kt' \
+            'build-logic/**/*.kts'
+
+  build:
+    name: gradle build (assemble)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Accept Android SDK licenses and install platform
+        run: |
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "${SDKMANAGER}" ]; then
+            SDKMANAGER="${ANDROID_HOME}/cmdline-tools/bin/sdkmanager"
+          fi
+          yes | "${SDKMANAGER}" --licenses > /dev/null || true
+          "${SDKMANAGER}" --install "platforms;android-37.0" > /dev/null
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      - name: Assemble all modules
+        run: ./gradlew assemble --stacktrace --no-daemon
+      - name: Upload debug APK
+        if: hashFiles('app/build/outputs/apk/debug/app-debug.apk') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: unknown-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14
+
+  release-build:
+    name: gradle build (release)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Set up JDK
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Accept Android SDK licenses and install platform
+        run: |
+          SDKMANAGER="${ANDROID_HOME}/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "${SDKMANAGER}" ]; then
+            SDKMANAGER="${ANDROID_HOME}/cmdline-tools/bin/sdkmanager"
+          fi
+          yes | "${SDKMANAGER}" --licenses > /dev/null || true
+          "${SDKMANAGER}" --install "platforms;android-37.0" > /dev/null
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-read-only: true
+      - name: Assemble release (unsigned)
+        run: |
+          if [ -d app ]; then
+            ./gradlew :app:assembleRelease --stacktrace --no-daemon
+          else
+            echo "app module not present in this layer — skipping release assembly"
+          fi
+      - name: Upload unsigned release APK
+        if: hashFiles('app/build/outputs/apk/release/app-release-unsigned.apk') != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: unknown-release-apk-unsigned
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
+          retention-days: 14
